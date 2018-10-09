@@ -165,9 +165,121 @@ ggplot(data=mpg) +
 
 #### GEOMETRIC OBJECTS ####
 
+# geoms are the geometrical object that ggplot uses to represent data.
+
+ggplot(mpg) +
+      geom_point(aes(displ, hwy))
+
+ggplot(mpg) +
+      geom_smooth(aes(displ, hwy))
+
+ggplot(mpg) +
+      geom_smooth(aes(displ, hwy, linetype=drv))
+
+# Multiple geoms can be used in the same graph
+ggplot(mpg) +
+      geom_point(aes(displ, hwy, color=drv)) +
+      geom_smooth(aes(displ, hwy, color=drv, linetype=drv))
+
+# Global mappings will be used (inherited) by all subsequent geoms. Local mappings are 
+# used to overide global mappings or to specify scallings that only apply to one layer
+
+# the following both produce the same graph
+ggplot(mpg) +
+      geom_point(aes(displ, hwy)) +
+      geom_smooth(aes(displ, hwy))
+
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point() +
+      geom_smooth()
+
+# adding a scalling to points only
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point(aes(color=drv)) +
+      geom_smooth()
+
+# changing the color of the line
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point() +
+      geom_smooth(color="red")
+
+# the same principle can be applied to the data set that is been mapped
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point(aes(color=class)) +
+      geom_smooth(
+            data=filter(mpg, class == "subcompact"), 
+            se=FALSE
+      )
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1)
+# line chart: geom_line
+# boxplot: geom_boxplot
+# histogram: geom_histogram
+# area chart: geom_area
+
+# 2)
+# prediction: scatter plot for displ and hwy colored by drv, with loess smooth by drv 
+# (no se will be showned)
+ggplot(mpg, aes(displ, hwy, color=drv)) +
+      geom_point() +
+      geom_smooth(se=FALSE)
+
+# 3)
+# show.legend = FALSE removes the legend for that layer
+
+# 4)
+# removes the display of the standard deviation 
+
+# 5)
+# they will look the same since the same variables of the same data set are been mapped to
+# the same aesthetics using the same geoms
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point() +
+      geom_smooth()
+
+ggplot() +
+      geom_point(
+            data=mpg,
+            mapping=aes(x=displ, y=hwy)
+      ) +
+      geom_smooth(
+            data=mpg,
+            mapping=aes(x=displ, y=hwy)
+      )
+
+# 6)
+# top left
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point() +
+      geom_smooth(se=FALSE)
+# top right
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point() +
+      geom_smooth(aes(group=drv), se=FALSE)
+# middle left
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point(aes(color=drv)) +
+      geom_smooth(aes(group=drv), se=FALSE)
+# middle right
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point(aes(color=drv)) +
+      geom_smooth(se=FALSE)
+# bottom left
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point(aes(color=drv)) +
+      geom_smooth(aes(linetype=drv), se=FALSE)
+# bottom right
+ggplot(mpg, aes(displ, hwy)) +
+      geom_point(aes(color=drv))
+
+#----------------------------------------------------------------------------------------#
+
+#### STATISTICAL TRANSFORMATIONS ####
 
 
 
 #$##############################
-#### FIN DE LA PROGRAMACI?N ####
+#### FIN DE LA PROGRAMACIÓN ####
 #$##############################
