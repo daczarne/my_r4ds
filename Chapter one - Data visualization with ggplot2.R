@@ -1,6 +1,6 @@
-#$############################
+##############################
 #### CHAPTER ONE: GGPLOT2 ####
-#$############################
+##############################
 
 library(tidyverse)
 
@@ -278,8 +278,113 @@ ggplot(mpg, aes(displ, hwy)) +
 
 #### STATISTICAL TRANSFORMATIONS ####
 
+# A stat is the algorithm used to calculate new values for a graph:
+#     identity: does not transformation to the data.
+#     count: bins the data and counts how many data points fall in each bin
+#     bin: 
+
+# Each stat has a specific group of computed variableS:
+#     stat_count: ..count.. and ..prop..
+#     
+
+# Each geom has a default stat and every stat has a default geom:
+#     geom_point -> identity
+#     geom_bar -> count
+#     geom_histogram -> bin
+
+# GENERALLY, geoms and stats can be used interchangeably:
+ggplot(ggplot2::diamonds) +
+      geom_bar(aes(cut))
+ggplot(ggplot2::diamonds) +
+      stat_count(aes(cut))
+
+# But stats can also be overriden in different geoms:
+demo <- tribble(
+      ~a,     ~b,
+      "bar_1", 20, 
+      "bar_2", 30,
+      "bar_3", 40)
+ggplot(demo) +
+      geom_bar(aes(x=a, y=b), stat="identity")
+
+# One can also change from the default computed variable, to any other of them:
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop.., group=1))
+
+# "you might want to draw greater attention to the stat transform in your code"
+ggplot(diamonds) +
+      stat_summary(mapping=aes(cut, depth),
+                   fun.ymin=min,
+                   fun.ymax=max,
+                   fun.y=median)
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1) 
+# default geom: pointrange
+diamonds %>%
+      group_by(cut) %>%
+      summarise(mediana.gr = median(depth), min.gr = min(depth), max.gr = max(depth)) %>%
+      ggplot() +
+      geom_pointrange(aes(x=cut, y=mediana.gr, ymin=min.gr, ymax=max.gr)) +
+      ylab("depth")
+
+# No funciona. ggplot no quiere agrupar ... aes(group = ??)
+ggplot(diamonds) +
+      geom_pointrange(aes(x=cut, y=median(depth), ymin=min(depth), ymax=max(depth)))
+
+# 2)
+?geom_col
+# Like goem_bar but heights of the bars represent the values in the data
+
+# 3)
+# See excel file: geoms and stats
+
+# 4)
+# computed variables: ..y.. & ..ymin.. & ..ymax.. & ..se..
+# parameters: method & formula & se & n & span & fullrange & level & method.args
+
+# 5) why does group need to be set to 1?
+# whitout grouping: plots a and b
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop..))
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=color, y=..prop..))
+# with grouping: plots c and d
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop.., group=1))
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop.., fill=color, group=color))
+
+# In plot a prop is been calculated for each group. Therefore, it's always 1, since 100%
+# of the Fair diamonds are in the Fair bar, 100% of Good diamonds are in the Good bar, and 
+# so on. In plot c prop is been calculated for the different groups, since group=1 
+# overrides the default grouping ggplot does and sets to group to a constant. The argument
+# could have taken any other value such as 2 or 3 or 123 or "abc" and the result would
+# have been the same, as demostrated below:
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop.., group=2))
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop.., group=3))
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop.., group=123))
+ggplot(diamonds) +
+      geom_bar(aes(cut, y=..prop.., group="abc"))
+# They all render the same plot since the objective is to set the grouping argument to a
+# constant. By default ggplot will always group by factor levels when either x or y are
+# categorical variables.
+
+# In plot b, problem is that we need to add a second grouping variable (cut been the 
+# default one). group= color (as in plot d), will group results by variable color. 
+# ggplot is calculating the within group proportions and ploting them in each bar so that 
+# the proportion of each bar colored by one color represents the proportion of diamonds
+# with that value of color for that of cut.
+
+#----------------------------------------------------------------------------------------#
+
+#### POISTION ADJUSTMENTS ####
 
 
-#$##############################
+################################
 #### FIN DE LA PROGRAMACIÓN ####
-#$##############################
+################################
