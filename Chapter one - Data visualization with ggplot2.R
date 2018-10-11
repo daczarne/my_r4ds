@@ -457,7 +457,70 @@ ggplot(mpg) +
 
 #----------------------------------------------------------------------------------------#
 
-sds
+#### COORDINATE SYSTEMS ####
+
+# Default system used is Cartesian.
+# Other option: 
+#     coord_flip switches x- and y-axes (example a)
+#     coord_quickmap sets the aspect ratio correctly for maps (example b)
+#     coord_polar uses polar coordinates (example c)
+
+# example a
+ggplot(mpg) +
+      geom_boxplot(aes(class, hwy))
+ggplot(mpg) +
+      geom_boxplot(aes(class, hwy)) +
+      coord_flip()
+
+# example b (requires "maps" package to be installed)
+ggplot(map_data("nz")) +
+      geom_polygon(aes(long, lat, group=group), fill="white", color="black")
+ggplot(map_data("nz")) +
+      geom_polygon(aes(long, lat, group=group), fill="white", color="black") +
+      coord_quickmap()
+
+# example c
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=cut), show.legend=FALSE, width=1) +
+      theme(aspect.ratio=1) +
+      labs(x=NULL, y=NULL)
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=cut), show.legend=FALSE, width=1) +
+      theme(aspect.ratio=1) +
+      labs(x=NULL, y=NULL) +
+      coord_flip()
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=cut), show.legend=FALSE, width=1) +
+      theme(aspect.ratio=1) +
+      labs(x=NULL, y=NULL) +
+      coord_polar()
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1) 
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=clarity), position="fill") +
+      coord_polar()
+
+# 2)
+?labs
+# modify labels (axes, legend and plot)
+
+# 3)
+?coord_quickmap
+# coord_quickmap preserves straight lines, whereas _map uses the projection specified by
+# the user
+
+# 4)
+ggplot(mpg, aes(cty, hwy)) +
+      geom_point() +
+      geom_abline() +
+      coord_fixed()
+# fuel efficency is always better for hwy than cty driving
+# coord_fixed forces aspect.ratio. By default, aspect.ratio = 1
+# geom_abline adds a reference line in this case using slope and intercept
+
+#----------------------------------------------------------------------------------------#
 
 ################################
 #### FIN DE LA PROGRAMACIÓN ####
