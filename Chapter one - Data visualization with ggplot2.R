@@ -384,6 +384,80 @@ ggplot(diamonds) +
 
 #### POISTION ADJUSTMENTS ####
 
+# color arguments colors the perimeter of the bars
+ggplot(diamonds) +
+      geom_bar(aes(cut, color=cut))
+# fill arguments colors the area of the bars
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=cut))
+
+# if the fill argument is set to a different variable, each colored rectangle is the 
+# combination of the two variables
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=clarity))
+
+# by default the bars are stacked because that is the default value of argument position.
+# This can be changed to either: "identity", "dodge", or "fill".
+
+# "identity" will create as many bars as fill groups there are and place them on their 
+# corresponding cut value. Problem here is the overplotting which can be "solved" by setting
+# an alpha value less than 1. Variable been displayed is `..count..`
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=clarity), position="identity", alpha=1/4)
+
+# "fill" stacks the bars but does so that each bar in the plot stacks to 100. Useful for
+# comparisons. Each rectangle reporesents the proportion of `clarity` for that value 
+# of `cut`. Variable been displayed is `..prop..`
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=clarity), position="fill")
+
+# "dodge" places overlapping bars beside one another. Variable been displayed is
+# `..count..`
+ggplot(diamonds) +
+      geom_bar(aes(cut, fill=clarity), position="dodge")
+
+# For scatter plots with heavy overplotting we can use position `jitter`, which adds a 
+# small random noise to each point so that the data mass is revealed.
+ggplot(mpg) +
+      geom_point(aes(displ, hwy), position="jitter")
+# geom_jitter is used for that
+ggplot(mpg) +
+      geom_jitter(aes(displ, hwy))
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1) 
+ggplot(mpg, aes(cty, hwy)) +
+      geom_point()
+# Problem is overplotting and it can be solved by jittering
+ggplot(mpg, aes(cty, hwy)) +
+      geom_jitter()
+# or by using an alpha
+ggplot(mpg, aes(cty, hwy)) +
+      geom_point(alpha=1/5)
+
+# 2)
+?geom_jitter
+# width and height control horizontal and vertical jitter. Default is 40%
+
+# 3)
+?geom_count
+# While jitter adds noise to the points so that they don't overlap, count counts the number
+# of points that coincide and uses that information as a point area aes.
+# `jitter` -> stat = "identity", postition = "jitter"
+# `count` -> stat = "sum", position = "identity"
+ggplot(mpg, aes(cty, hwy)) +
+      geom_count()
+
+# 4) 
+?geom_boxplot
+# position = "dodge2"
+ggplot(mpg) + 
+      geom_boxplot(aes(drv, hwy, color=factor(year)))
+
+#----------------------------------------------------------------------------------------#
+
+sds
 
 ################################
 #### FIN DE LA PROGRAMACIÓN ####
