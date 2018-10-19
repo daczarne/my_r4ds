@@ -56,7 +56,44 @@ FALSE & NA # evals to FALSE since both need to eval to TRUE for an and to be TRU
 
 ### arrange() ####
 
+# arrange orders the rows in ascending order based on the values of a variable
+# additional variables can be used to break ties
+# desc() is used to order in descending order
+# NAs are always sorted at the end
 
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1)
+arrange(flights, !is.na(dep_time))
+
+# 2)
+arrange(flights, desc(dep_delay))
+
+# 3)
+# velocity = distance / time
+arrange(flights, desc(distance/air_time))
+
+# 4)
+# longest
+arrange(flights, desc(distance))
+# shortest
+arrange(flights, distance)
+
+#----------------------------------------------------------------------------------------#
+
+#### select() ####
+
+
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1)
+
+
+
+
+
+#----------------------------------------------------------------------------------------#
 
 
 ################################
