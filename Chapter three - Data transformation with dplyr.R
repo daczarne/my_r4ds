@@ -83,6 +83,53 @@ arrange(flights, distance)
 
 #### select() ####
 
+# selects variables based on their names
+
+# selec variables year, month and day
+select(flights, year, month, day)
+# select all variables between year and day
+select(flights, year:day)
+# select all variables except those from year to day (inclusive)
+select(flights, -(year:day))
+
+# helper function
+#     starts_with("character string")
+#     ends_with("character string")
+#     contains("character string")
+#     matches("regexp")
+#     num_range("x", 1:3) matches x1, x2, and x3
+
+# rename() is a variation of selects that changes the name of a variable and keeps all
+# the rest: rename(tibble, old_name = new_name)
+rename(flights, tail_num = tailnum)
+
+# use helper everything() to move some varable(s) to the start of your data_frame
+select(flights, time_hour, air_time, everything())
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1) dep_time, dep_delay, arr_time, arr_delay
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+select(flights, dep_time:arr_delay, -contains("sched"))
+select(flights, matches("time"), matches("delay"), -matches("sched"), -matches("air"), -matches("hour"))
+
+# 2)
+select(flights, dep_time, dep_time)
+# nothing happens?
+
+# 3) 
+?one_of # selects variables in character vector.
+vars <- c("year", "month", "day", "dep_delay", "arr_delay")
+select(flights, one_of(vars))
+
+# 4)
+select(flights, contains("TIME"))
+# default arg is ignore.case=TRUE => not surpising 
+
+#----------------------------------------------------------------------------------------#
+
+#### mutate() ####
+
 
 
 #### ----------------------------------- EXERCISES ---------------------------------- ####
@@ -94,6 +141,37 @@ arrange(flights, distance)
 
 
 #----------------------------------------------------------------------------------------#
+
+#### summarize() ####
+
+
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1)
+
+
+
+
+
+#----------------------------------------------------------------------------------------#
+
+#### GRouped Mutates ####
+
+
+
+#### ----------------------------------- EXERCISES ---------------------------------- ####
+
+# 1)
+
+
+
+
+
+#----------------------------------------------------------------------------------------#
+
+
+
 
 
 ################################
