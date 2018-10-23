@@ -130,14 +130,53 @@ select(flights, contains("TIME"))
 
 #### mutate() ####
 
-
+# adds new columns at the end of the data set
+flights_sml <- select(flights, year:day, ends_with("delay"), distance, air_time)
+mutate(flights_sml, gain = arr_delay - dep_delay, speed = distance / air_time * 60)
+# you can refer to columns you've just created
+mutate(flights_sml, gain = arr_delay - dep_delay, hours = air_time * 60, 
+       gain_per_hour = gain / hours)
+# if you only want to keep the new variables use transmute()
+transmute(flights, gain = arr_delay - dep_delay, hours = air_time * 60, 
+          gain_per_hour = gain / hours)
+# you can use any vectorized function to creat new variables
+#     arithmetic operators: + - / *
+#     modular arithmetic: %/% (integer division) %% (remainder)
+transmute(flights, dep_time, hour = dep_time %/% 100, minute = dep_time %% 100)
+#     logarithms
+transmute(flights, dep_time, log_dep_time = log2(dep_time))
+#     offsets: lead() lag()
+sort(unique(flights$month))
+lead(sort(unique(flights$month)))
+lag(sort(unique(flights$month)))
+#     cumulative aggregates: cumsum() cumprod() cummin() cummax() cummean()
+cumsum(c(1:10))
+cumprod(c(1:10))
+#     rolling aggregates: use RcppRoll package
+#     logical comparisons: < <= == >= > !=
+#     ranking: min_rank(), row_number(), dense_rank(), percent_rank(), cume_dist(), ntile()
+y <- c(1, 2, 2, NA, 3, 4)
+min_rank(y)
+min_rank(desc(y))
+row_number(y)
+dense_rank(y)
+percent_rank(y)
+cume_dist(y)
 
 #### ----------------------------------- EXERCISES ---------------------------------- ####
 
-# 1)
+# 1) 
+transmute(flights, dep_time, sched_dep_time, 
+          dt_mins_from_mid = (dep_time %/% 100) * 60 + (dep_time %% 100),
+          scdt_mins_from_mid = (sched_dep_time %/% 100) * 60 + (sched_dep_time %% 100))
 
-
-
+# 2) 
+# both arr_time and dep_time are in local tz. Both should be the same if this is accounted
+# for
+transmute(flights, air_time, arr_time, dep_time,
+          at_from_mid = (arr_time %/% 100) * 60 + (arr_time %% 100),
+          dt_from_mid = (dep_time %/% 100) * 60 + (dep_time %% 100),
+          air_time_2 = at_from_mid - dt_from_mid)
 
 
 #----------------------------------------------------------------------------------------#
