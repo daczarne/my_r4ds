@@ -178,6 +178,29 @@ transmute(flights, air_time, arr_time, dep_time,
           dt_from_mid = (dep_time %/% 100) * 60 + (dep_time %% 100),
           air_time_2 = at_from_mid - dt_from_mid)
 
+# 3)
+# delay should be the difference between scheduled and dep.
+
+# 4)
+transmute(flights, dep_delay, arr_delay,
+          total_delay = if_else(dep_delay > 0 & arr_delay > 0, dep_delay + arr_delay, 
+                                if_else(dep_delay > 0 & arr_delay <= 0, dep_delay,
+                                        if_else(dep_delay <= 0 & arr_delay > 0, arr_delay, 0))),
+          delay_ranking = min_rank(desc(total_delay))) %>%
+      arrange(desc(total_delay))
+      
+# ggplot(flights) +
+#       geom_point(aes(dep_delay, arr_delay), alpha = 1/10) +
+#       geom_hline(yintercept=0, color="red") + 
+#       geom_vline(xintercept=0, color="red")
+
+
+# 5)
+1:3 + 1:10
+# recycling
+
+# 6)
+?Trig
 
 #----------------------------------------------------------------------------------------#
 
