@@ -3,6 +3,7 @@
 ##############################
 
 library(nycflights13)
+library(Lahman)
 library(tidyverse)
 
 #### filter() ####
@@ -206,19 +207,194 @@ transmute(flights, dep_delay, arr_delay,
 
 #### summarize() ####
 
+# collapses data fram into a single row
+summarise(flights, delay = mean(dep_delay, na.rm=TRUE))
 
+# if used with groupp_by(), computes summaries per groups
+# use the pipe operator to pipe operationes (duh!)
+# aggregate function follow standard NA tules
+group_by(flights, year, month, day) %>%
+      summarise(delay = mean(dep_delay, na.rm=TRUE))
+
+# when using aggregate functions it si always a good idea to include counts and/or counts
+# of non missing values
+group_by(flights, month) %>%
+      summarise(obs = n(), not_na = sum(!is.na(dep_delay)))
+
+delays <- flights %>%
+      group_by(dest) %>%
+      summarise(
+            count = n(),
+            dist = mean(distance, na.rm=TRUE),
+            delay = mean(arr_delay, na.rm=TRUE)
+      ) %>%
+      filter(count > 20, dest != "HNL")
+
+not.cancelled <- flights %>%
+      filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not.cancelled %>%
+      group_by(tailnum) %>%
+      summarise(delay = mean(arr_delay)) %>%
+      ggplot() +
+      geom_freqpoly(aes(delay), binwidth = 10)
+      
+
+not.cancelled %>%
+      group_by(tailnum) %>%
+      summarise(delay = mean(arr_delay, na.rm=TRUE), n = n()) %>%
+      ggplot() +
+      geom_point(aes(x=n, y=delay), alpha=1/10)
+
+# remove smaller groups
+not.cancelled %>%
+      group_by(tailnum) %>%
+      summarise(delay = mean(arr_delay, na.rm=TRUE), n = n()) %>%
+      filter(n > 25) %>%
+      ggplot() +
+      geom_point(aes(x=n, y=delay), alpha=1/10, color="red")
+
+# Summary functions:
+#     Location: mean(), median()
+not.cancelled %>%
+      group_by(year, month, day) %>%
+      summarise(
+            # average delay:
+            avg_delay1 = mean(arr_delay),
+            # average positive delay
+            avg_delay2 = mean(arr_delay[arr_delay > 0])
+      )
+#     Spread: sd(), IQR(), mad()
+not.cancelled %>%
+      group_by(dest) %>%
+      summarise(distance_sd = sd(distance)) %>%
+      arrange(desc(distance_sd))
+#     Rank: min(), quantile(), max()
+not.cancelled %>%
+      group_by(year, month, day) %>%
+      summarise(
+            first = min(dep_time),
+            last = max(dep_time)
+      )
+#     Position: first(), nth(),last()
+not.cancelled %>%
+      group_by(year, month, day) %>%
+      summarise(
+            first_dep = first(dep_time),
+            last_dep = last(dep_time)
+      )
+# this is equivalent to filtering on ranks:
+not.cancelled %>%
+      group_by(year, month, day) %>%
+      mutate(r = min_rank(desc(dep_time))) %>%
+      filter(r %in% range(r))
+#     Counts: n(), sum(!is.na()), n_distinct()
+not.cancelled %>%
+      group_by(dest) %>%
+      summarise(carriers = n_distinct(carrier)) %>%
+      arrange(desc(carriers))
+# counter helper function
+not.cancelled %>%
+      count(dest, wt=distance)
+#     Counts and proportions of logical values: TRUE = 1, FALSE = 0
+
+# to return to ungrouped data use ungroup()
 
 #### ----------------------------------- EXERCISES ---------------------------------- ####
 
 # 1)
+# how's a group of flights defined??
 
+# 2)
+not.cancelled %>%
+      count(dest)
+not.cancelled %>%
+      group_by(dest) %>%
+      tally()
 
+not.cancelled %>%
+      count(tailnum, wt=distance)
+not.cancelled %>%
+      group_by(tailnum) %>%
+      tally(wt=distance)
 
+# 3)
+# if a flight was cancelled then the arrival becomes irrelevant
 
+# 4)
+flights %>%
+      mutate(cancelled = if_else(is.na(dep_time) & is.na(arr_time), 1, 0)) %>%
+      group_by(year, month, day) %>%
+      summarise(
+            n = n(), 
+            prop_cancelled = mean(cancelled),
+            mean_delay = mean(dep_delay, na.rm=TRUE)
+      ) %>%
+      ggplot(aes(prop_cancelled, mean_delay)) +
+      geom_point(alpha = 1/5, color="red") +
+      geom_smooth()
+
+# 5)
+# Carriers by mean delay
+flights %>%
+      group_by(carrier) %>%
+      summarise(mean_delay = mean(dep_delay, na.rm=TRUE)) %>%
+      arrange(desc(mean_delay))
+
+# Carriers/destinations by mean delay
+flights %>%
+      group_by(carrier, dest) %>%
+      summarise(n = n(), mean_delay = mean(dep_delay, na.rm=T)) %>%
+      arrange(desc(mean_delay))
+
+# Disentangle effect
+ggplot(flights, aes(dest, y=dep_delay)) +
+      geom_boxplot() +
+      facet_grid(~carrier) +
+      coord_flip() +
+      theme(axis.text=element_text(size = 7))
+
+# subsetting carriers and airports for simplicity
+filter(flights, 
+       dest %in% sample(dest, 25),
+       carrier %in% sample(carrier, 10)
+       ) %>%
+      droplevels() %>%
+      group_by(carrier, dest) %>%
+      summarise(mean_delay = mean(dep_delay, na.rm=TRUE)) %>%
+      ggplot(aes(dest, mean_delay)) +
+      geom_point() +
+      facet_grid(~carrier) +
+      coord_flip()
+      theme(axis.text=element_text(size = 7))
+
+# 6)
+flights %>%
+      filter(!is.na(dep_time)) %>%
+      mutate(greater_60 = if_else(dep_delay > 60, 1, 0)) %>%
+      group_by(tailnum) %>%
+      mutate(has_delay = cumsum(greater_60)) %>%
+      filter(has_delay == 0) %>%
+      tally()
+
+# to examin the data set use
+flights %>%
+      filter(!is.na(dep_time)) %>%
+      mutate(greater_60 = if_else(dep_delay > 60, 1, 0)) %>%
+      group_by(tailnum) %>%
+      mutate(has_delay = cumsum(greater_60)) %>%
+      select(tailnum, greater_60, has_delay, dep_delay, everything()) %>%
+      arrange(.by_group=TRUE) %>%
+      View()
+
+# 7)
+?dplyr::count
+# sort output in descending order
+# will use it when needed
 
 #----------------------------------------------------------------------------------------#
 
-#### GRouped Mutates ####
+#### Grouped Mutates ####
 
 
 
