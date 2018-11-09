@@ -442,36 +442,28 @@ flights %>%
       mutate(dest_total_delay = sum(arr_delay, na.rm=TRUE)) %>%
       ungroup() %>%
       group_by(tailnum, dest) %>%
-      summarise(tail_total_delay = sum(arr_delay, na.rm=TRUE) / dest_total_delay)
+      summarise(prop_delay = sum(arr_delay, na.rm=TRUE) / first(dest_total_delay))
 
+# 5) 
+flights %>%
+      filter(!is.na(dep_delay)) %>%
+      mutate(previous_dep_delay = lag(dep_delay)) %>%
+      ggplot() +
+      geom_point(aes(previous_dep_delay, dep_delay), alpha=1/5)
 
+# 6)
+flights %>%
+      mutate(velocity = distance / air_time) %>%
+      select(velocity, everything()) %>%
+      arrange(desc(velocity))
+
+# 7) 
 flights %>%
       group_by(dest) %>%
-      mutate(dest_total_delay = sum(arr_delay, na.rm=TRUE)) %>%
-      ungroup() %>%
-      group_by(tailnum, dest) %>%
-      select(tailnum, dest, arr_delay, dest_total_delay, everything())
-
-
-
-
-flights %>%
-      group_by(dest) %>%
-      summarise(tails = n_distinct(tailnum))
-
-flights %>%
-      group_by(tailnum) %>%
-      summarise(dests = n_distinct(dest))
-
-flights %>%
-      group_by(tailnum, dest) %>%
-      tally()
+      summarise(num_carriers = n_distinct(carrier)) %>%
+      arrange(desc(num_carriers))
 
 #----------------------------------------------------------------------------------------#
-
-
-
-
 
 ################################
 #### FIN DE LA PROGRAMACIÓN ####
