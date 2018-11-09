@@ -365,7 +365,7 @@ filter(flights,
       ggplot(aes(dest, mean_delay)) +
       geom_point() +
       facet_grid(~carrier) +
-      coord_flip()
+      coord_flip() +
       theme(axis.text=element_text(size = 7))
 
 # 6)
@@ -396,15 +396,76 @@ flights %>%
 
 #### Grouped Mutates ####
 
+# Find the worst members of each group
+flights_sml %>%
+      group_by(year, month, day) %>%
+      filter(rank(desc(arr_delay)) <= 2)
+
+# Find all groups bigger than a threshold
+popular_dests <- flights %>%
+      group_by(dest) %>%
+      filter(n() > 365)
+
+# Standarize to compute per group metrics
+popular_dests %>%
+      filter(arr_delay > 0) %>%
+      mutate(prop_delay = arr_delay / sum(arr_delay)) %>%
+      select(year:day, dest, arr_delay, prop_delay)
 
 
 #### ----------------------------------- EXERCISES ---------------------------------- ####
 
 # 1)
+# They operate on a per group basis
+
+# 2)
+flights %>%
+      mutate(late = if_else(arr_delay > 0, 1, 0)) %>%
+      group_by(tailnum) %>%
+      summarise(siempre_tarde = mean(late, na.rm=TRUE)) %>%
+      arrange(desc(siempre_tarde))
+
+# 3)
+flights %>%
+      mutate(late = if_else(arr_delay > 0, 1, 0)) %>%
+      group_by(sched_dep_time) %>%
+      summarise(worst_times = mean(late, na.rm=TRUE)) %>%
+      arrange(desc(worst_times))
+
+# 4)
+flights %>%
+      group_by(dest) %>%
+      summarise(total_delay = sum(arr_delay, na.rm=TRUE))
+
+flights %>%
+      group_by(dest) %>%
+      mutate(dest_total_delay = sum(arr_delay, na.rm=TRUE)) %>%
+      ungroup() %>%
+      group_by(tailnum, dest) %>%
+      summarise(tail_total_delay = sum(arr_delay, na.rm=TRUE) / dest_total_delay)
+
+
+flights %>%
+      group_by(dest) %>%
+      mutate(dest_total_delay = sum(arr_delay, na.rm=TRUE)) %>%
+      ungroup() %>%
+      group_by(tailnum, dest) %>%
+      select(tailnum, dest, arr_delay, dest_total_delay, everything())
 
 
 
 
+flights %>%
+      group_by(dest) %>%
+      summarise(tails = n_distinct(tailnum))
+
+flights %>%
+      group_by(tailnum) %>%
+      summarise(dests = n_distinct(dest))
+
+flights %>%
+      group_by(tailnum, dest) %>%
+      tally()
 
 #----------------------------------------------------------------------------------------#
 
