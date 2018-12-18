@@ -9,7 +9,7 @@ library(tidyverse)
 #### filter() ####
 
 # filter allows you to subset observations bases on the values.
-jan1 <- filter(flights, month==1, day==1)
+jan1 <- filter(flights, month == 1, day == 1)
 
 #### ----------------------------------- EXERCISES ---------------------------------- ####
 
@@ -112,7 +112,8 @@ select(flights, time_hour, air_time, everything())
 # 1) dep_time, dep_delay, arr_time, arr_delay
 select(flights, dep_time, dep_delay, arr_time, arr_delay)
 select(flights, dep_time:arr_delay, -contains("sched"))
-select(flights, matches("time"), matches("delay"), -matches("sched"), -matches("air"), -matches("hour"))
+select(flights, matches("time"), matches("delay"), -matches("sched"), -matches("air"), 
+       -matches("hour"))
 
 # 2)
 select(flights, dep_time, dep_time)
@@ -185,8 +186,8 @@ transmute(flights, air_time, arr_time, dep_time,
 # 4)
 transmute(flights, dep_delay, arr_delay,
           total_delay = if_else(dep_delay > 0 & arr_delay > 0, dep_delay + arr_delay, 
-                                if_else(dep_delay > 0 & arr_delay <= 0, dep_delay,
-                                        if_else(dep_delay <= 0 & arr_delay > 0, arr_delay, 0))),
+                        if_else(dep_delay > 0 & arr_delay <= 0, dep_delay,
+                        if_else(dep_delay <= 0 & arr_delay > 0, arr_delay, 0))),
           delay_ranking = min_rank(desc(total_delay))) %>%
       arrange(desc(total_delay))
       
@@ -208,13 +209,13 @@ transmute(flights, dep_delay, arr_delay,
 #### summarize() ####
 
 # collapses data fram into a single row
-summarise(flights, delay = mean(dep_delay, na.rm=TRUE))
+summarise(flights, delay = mean(dep_delay, na.rm = TRUE))
 
 # if used with groupp_by(), computes summaries per groups
 # use the pipe operator to pipe operationes (duh!)
 # aggregate function follow standard NA tules
 group_by(flights, year, month, day) %>%
-      summarise(delay = mean(dep_delay, na.rm=TRUE))
+      summarise(delay = mean(dep_delay, na.rm = TRUE))
 
 # when using aggregate functions it si always a good idea to include counts and/or counts
 # of non missing values
@@ -225,8 +226,8 @@ delays <- flights %>%
       group_by(dest) %>%
       summarise(
             count = n(),
-            dist = mean(distance, na.rm=TRUE),
-            delay = mean(arr_delay, na.rm=TRUE)
+            dist = mean(distance, na.rm = TRUE),
+            delay = mean(arr_delay, na.rm = TRUE)
       ) %>%
       filter(count > 20, dest != "HNL")
 
@@ -242,17 +243,17 @@ not.cancelled %>%
 
 not.cancelled %>%
       group_by(tailnum) %>%
-      summarise(delay = mean(arr_delay, na.rm=TRUE), n = n()) %>%
+      summarise(delay = mean(arr_delay, na.rm = TRUE), n = n()) %>%
       ggplot() +
-      geom_point(aes(x=n, y=delay), alpha=1/10)
+      geom_point(aes(x = n, y = delay), alpha = 1/10)
 
 # remove smaller groups
 not.cancelled %>%
       group_by(tailnum) %>%
-      summarise(delay = mean(arr_delay, na.rm=TRUE), n = n()) %>%
+      summarise(delay = mean(arr_delay, na.rm = TRUE), n = n()) %>%
       filter(n > 25) %>%
       ggplot() +
-      geom_point(aes(x=n, y=delay), alpha=1/10, color="red")
+      geom_point(aes(x=n, y=delay), alpha = 1/10, color = "red")
 
 # Summary functions:
 #     Location: mean(), median()
@@ -295,7 +296,7 @@ not.cancelled %>%
       arrange(desc(carriers))
 # counter helper function
 not.cancelled %>%
-      count(dest, wt=distance)
+      count(dest, wt = distance)
 #     Counts and proportions of logical values: TRUE = 1, FALSE = 0
 
 # to return to ungrouped data use ungroup()
@@ -313,10 +314,10 @@ not.cancelled %>%
       tally()
 
 not.cancelled %>%
-      count(tailnum, wt=distance)
+      count(tailnum, wt = distance)
 not.cancelled %>%
       group_by(tailnum) %>%
-      tally(wt=distance)
+      tally(wt = distance)
 
 # 3)
 # if a flight was cancelled then the arrival becomes irrelevant
@@ -338,21 +339,21 @@ flights %>%
 # Carriers by mean delay
 flights %>%
       group_by(carrier) %>%
-      summarise(mean_delay = mean(dep_delay, na.rm=TRUE)) %>%
+      summarise(mean_delay = mean(dep_delay, na.rm = TRUE)) %>%
       arrange(desc(mean_delay))
 
 # Carriers/destinations by mean delay
 flights %>%
       group_by(carrier, dest) %>%
-      summarise(n = n(), mean_delay = mean(dep_delay, na.rm=T)) %>%
+      summarise(n = n(), mean_delay = mean(dep_delay, na.rm = T)) %>%
       arrange(desc(mean_delay))
 
 # Disentangle effect
-ggplot(flights, aes(dest, y=dep_delay)) +
+ggplot(flights, aes(dest, y = dep_delay)) +
       geom_boxplot() +
       facet_grid(~carrier) +
       coord_flip() +
-      theme(axis.text=element_text(size = 7))
+      theme(axis.text = element_text(size = 7))
 
 # subsetting carriers and airports for simplicity
 filter(flights, 
@@ -361,12 +362,12 @@ filter(flights,
        ) %>%
       droplevels() %>%
       group_by(carrier, dest) %>%
-      summarise(mean_delay = mean(dep_delay, na.rm=TRUE)) %>%
+      summarise(mean_delay = mean(dep_delay, na.rm = TRUE)) %>%
       ggplot(aes(dest, mean_delay)) +
       geom_point() +
       facet_grid(~carrier) +
       coord_flip() +
-      theme(axis.text=element_text(size = 7))
+      theme(axis.text = element_text(size = 7))
 
 # 6)
 flights %>%
@@ -384,7 +385,7 @@ flights %>%
       group_by(tailnum) %>%
       mutate(has_delay = cumsum(greater_60)) %>%
       select(tailnum, greater_60, has_delay, dep_delay, everything()) %>%
-      arrange(.by_group=TRUE) %>%
+      arrange(.by_group = TRUE) %>%
       View()
 
 # 7)
@@ -422,34 +423,34 @@ popular_dests %>%
 flights %>%
       mutate(late = if_else(arr_delay > 0, 1, 0)) %>%
       group_by(tailnum) %>%
-      summarise(siempre_tarde = mean(late, na.rm=TRUE)) %>%
+      summarise(siempre_tarde = mean(late, na.rm = TRUE)) %>%
       arrange(desc(siempre_tarde))
 
 # 3)
 flights %>%
       mutate(late = if_else(arr_delay > 0, 1, 0)) %>%
       group_by(sched_dep_time) %>%
-      summarise(worst_times = mean(late, na.rm=TRUE)) %>%
+      summarise(worst_times = mean(late, na.rm = TRUE)) %>%
       arrange(desc(worst_times))
 
 # 4)
 flights %>%
       group_by(dest) %>%
-      summarise(total_delay = sum(arr_delay, na.rm=TRUE))
+      summarise(total_delay = sum(arr_delay, na.rm = TRUE))
 
 flights %>%
       group_by(dest) %>%
-      mutate(dest_total_delay = sum(arr_delay, na.rm=TRUE)) %>%
+      mutate(dest_total_delay = sum(arr_delay, na.rm = TRUE)) %>%
       ungroup() %>%
       group_by(tailnum, dest) %>%
-      summarise(prop_delay = sum(arr_delay, na.rm=TRUE) / first(dest_total_delay))
+      summarise(prop_delay = sum(arr_delay, na.rm = TRUE) / first(dest_total_delay))
 
 # 5) 
 flights %>%
       filter(!is.na(dep_delay)) %>%
       mutate(previous_dep_delay = lag(dep_delay)) %>%
       ggplot() +
-      geom_point(aes(previous_dep_delay, dep_delay), alpha=1/5)
+      geom_point(aes(previous_dep_delay, dep_delay), alpha = 1/5)
 
 # 6)
 flights %>%
