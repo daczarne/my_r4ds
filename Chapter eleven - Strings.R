@@ -10,6 +10,14 @@ library(stringr)
 
 #### String basics ####
 
+string1 <- "This is a string"
+string2 <- 'To put a "quote" inside a string, use single quotes'
+
+double_quote <- "\"" # or '"'
+single_quote <- '\'' # or "'"
+
+x <- c("\"", "\\")
+writeLines(x)
 
 # Al stringR functions begin with str_
 str_length(c("a", "R for data science", NA))
@@ -19,7 +27,7 @@ str_c("X", "Y", sep = ",")
 str_c("X", "Y", sep = ", ")
 
 # Missing values are contagious
-x <- c("abc", NA)
+x <- c("abc", "defg", NA)
 str_c("|-", x, "-|")
 str_c("|-", str_replace_na(x), "-|")
 
@@ -131,6 +139,69 @@ w <- NULL
 what_Hadley_wants(w)
 
 #---------------------------------------------#
+
+#### Matching patterns ####
+
+x <- c("apple", "banana", "pear")
+
+# matches "an"
+str_view(x, "an")
+# . matches any character except new line
+str_view(x, ".a.")
+
+# To create the regular expression, we need \\
+dot <- "\\."
+# But the expression itself only contains one:
+writeLines(dot)
+# And this tells R to look for an explicit .
+str_view(c("abc", "a.c", "bef"), "a\\.c")
+
+# Matching \
+x <- "a\\b"
+writeLines(x)
+str_view(x, "\\\\")
+
+#----------------- EXERCISES -----------------#
+
+#---------------------------------------------#
+
+## Anchors
+# ^ start
+# $ end
+
+x <- c("apple", "banana", "pear")
+str_view(x, "^a")
+str_view(x, "a$")
+
+# To force a regular expression to only match a complete string, anchor it with both ^ and $
+x <- c("apple pie", "apple", "apple cake")
+str_view(x, "apple")
+str_view(x, "^apple$")
+
+
+#----------------- EXERCISES -----------------#
+# 1) 
+literal <- "$^$"
+str_view(literal, pattern = "\\$\\^\\$")
+
+# 2) 
+# a) start with y
+stringr::words[str_sub(stringr::words,start = 1, end = 1) == "y"]
+str_view(string = stringr::words, pattern = "^y", match = TRUE)
+
+# b) end with x
+stringr::words[str_sub(stringr::words,start = -1, end = -1) == "x"]
+str_view(string = stringr::words, pattern = "x$", match = TRUE)
+
+# c) are exactly three letters long
+three_letters_long <- "^...$"
+str_view(stringr::words, pattern = three_letters_long, match = TRUE)
+
+# d) seven letters or more
+str_view(stringr::words, pattern = "^.......", match = TRUE)
+
+#---------------------------------------------#
+
 
 
 ################################
