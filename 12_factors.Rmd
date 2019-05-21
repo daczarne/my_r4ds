@@ -2,15 +2,311 @@
 title: "Chapter 12 - Factors"
 author: "Daniel Czarnievicz"
 date: "5/20/2019"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    toc_float: 
+      smooth_scroll: true
+    theme: united
+    highlight: tango
+    fig_caption: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, comment = "")
+library(tidyverse)
+library(magrittr)
+library(stringr)
+library(forcats)
 ```
 
-# Set 1
+# Creating factors
 
+## Section notes
 
+```{r}
+# To creat a factor, start by creating a vector of the valid levels
+month_levels <- c( "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
+x1 <- c("Dec", "Apr", "Jan", "Mar")
+y1 <- factor(x1, levels = month_levels)
 
+# Values not in levels will be coerced to NA
+x2 <- c("Dec", "Apr", "Jam", "Mar")
+y2 <- factor(x2, levels = month_levels)
+
+# Unlike character vectors, factors will sort based on levels
+sort(x1)
+sort(y1)
+
+# If you want error reports, parse the factors
+parse_factor(x2, levels = month_levels)
+
+# If levels are not set explicitly, they will be done alphabetically
+factor(x1)
+
+# To set them based on first appearence use unique or fct_indorder
+f1 <- factor(x1, levels = unique(x1))
+f2 <- x1 %>% factor() %>% fct_inorder()
+
+# To access the levels, use levels()
+
+```
+
+# GSS
+
+## Section notes
+
+```{r}
+# Visualizing the factors
+count(gss_cat, race)
+ggplot(gss_cat, aes(race)) +
+      geom_bar()
+ggplot(gss_cat, aes(race)) +
+      geom_bar() +
+      scale_x_discrete(drop = FALSE)
+
+```
+
+## Exercise set 1 (page 227)
+
+### 1 - Explore `rincome`
+
+```{r}
+ggplot(gss_cat) +
+      geom_bar(aes(rincome))
+```
+
+### 2 - Most common `relig` and `partyid`
+
+```{r}
+count(gss_cat, relig) %>% arrange(desc(n))
+count(gss_cat, partyid) %>% arrange(desc(n))
+```
+
+### 3 - Religion for `denom`
+
+```{r}
+gss_cat %>% 
+      group_by(relig, denom) %>% 
+      tally() %>% 
+      arrange(desc(n))
+ggplot(gss_cat) +
+      geom_count(aes(x = relig, y = denom)) +
+      theme(axis.text.x = element_text(angle = 60, hjust = 1))
+
+```
+
+# Modifying factor order
+
+## Section notes
+
+```{r}
+# Changing the order of factor levels for visualization
+relig <- gss_cat %>%
+      group_by(relig) %>%
+      summarize(age = mean(age, na.rm = TRUE),
+                tvhours = mean(tvhours, na.rm = TRUE),
+                n = n())
+ggplot(relig, aes(tvhours, relig)) + geom_point()
+```
+
+```{r}
+# fct_reorder takes three arguments:
+#     .f the factor to reorder
+#     .x numeric vector used to reorder
+#     fun a function that's used if there are multiple values of .x for each value of .f (default is median)
+ggplot(relig) +
+      geom_point(aes(tvhours, fct_reorder(.f = relig, .x = tvhours)))
+```
+
+```{r}
+# for more complicated transformations, Hadely recomends taking reorder out of aes and into mutate
+relig %>%
+      mutate(relig = fct_reorder(relig, tvhours)) %>%
+      ggplot(aes(tvhours, relig)) +
+      geom_point()
+```
+
+```{r}
+# Reordering factors dosen't always make sense
+rincome <- gss_cat %>%
+      group_by(rincome) %>%
+      summarize(age = mean(age, na.rm = TRUE),
+                tvhours = mean(tvhours, na.rm = TRUE),
+                n = n())
+ggplot(rincome, aes(age, fct_reorder(rincome, age))) + 
+      geom_point()
+```
+
+```{r}
+# To move certain factor levels to the front of the line, use fct_relevel
+ggplot(rincome, aes(age, fct_relevel(rincome, "Not applicable"))) +
+      geom_point()
+```
+
+```{r, out.width="50%"}
+# reorder2 reorders the factor by the y values associated with the largest x values
+by_age <- gss_cat %>%
+      filter(!is.na(age)) %>%
+      count(age, marital) %>%
+      group_by(age) %>%
+      mutate(prop = n / sum(n))
+ggplot(by_age, aes(age, prop, color = marital)) +
+      geom_line(na.rm = TRUE)
+ggplot(by_age, aes(age, prop, color = fct_reorder2(marital, age, prop))) +
+      geom_line() +
+      labs(color = "marital")
+```
+
+```{r}
+# for bar plots, use fct_infreq with fct_rev
+#     fct_infreq takes a factor f and reorders based on it's frequency
+#     fct_rev takes a factor and reverses its order
+gss_cat %>%
+      mutate(marital = marital %>% fct_infreq() %>% fct_rev()) %>%
+      ggplot(aes(marital)) +
+      geom_bar()
+```
+
+## Exercise set 2 (page 232)
+
+### 1
+
+```{r}
+gss_cat %>% 
+  ggplot() +
+  geom_bar(aes(tvhours))
+```
+
+### 2
+
+```{r}
+sapply(select_if(gss_cat, is.factor), FUN = levels)
+```
+
+- `marital`: arbitrary  
+- `race`: arbitrary  
+- `rincome`: principled  
+- `partyid`: principled  
+- `relig`: arbitrary  
+- `denom`: arbitrary  
+
+### 3
+
+Default value for argument `after` is `0L`.
+
+```{r}
+ggplot(rincome, aes(age, fct_relevel(rincome, "Not applicable", after = Inf))) +
+  geom_point()
+```
+
+# Modifying factor levels
+
+Use `fct_recode` to change levels in a factor.
+
+```{r}
+gss_cat %>%
+  mutate(partyid = fct_recode(partyid,
+                              "Republican, strong"     = "Strong republican",
+                              "Republican, weak"       = "Not str republican",
+                              "Independent, near rep"  = "Ind,near rep",
+                              "Independent, near dem"  = "Ind,near dem",
+                              "Democrat, weak"         = "Not str democrat",
+                              "Democrat, strong"       = "Strong democrat"
+  )) %>%
+  count(partyid)
+```
+
+To combine groups, assign them to the same new level
+
+```{r}
+gss_cat %>%
+  mutate(partyid = fct_recode(partyid,
+                              "Republican, strong"    = "Strong republican",
+                              "Republican, weak"      = "Not str republican",
+                              "Independent, near rep" = "Ind,near rep",
+                              "Independent, near dem" = "Ind,near dem",
+                              "Democrat, weak"        = "Not str democrat",
+                              "Democrat, strong"      = "Strong democrat",
+                              "Other"                 = "No answer",
+                              "Other"                 = "Don't know",
+                              "Other"                 = "Other party"
+  )) %>%
+  count(partyid)
+```
+
+```{r}
+# fct_collapse can be used to re-level factors too
+gss_cat %>%
+  mutate(partyid = fct_collapse(partyid,
+                                other = c("No answer", "Don't know", "Other party"),
+                                rep = c("Strong republican", "Not str republican"),
+                                ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                                dem = c("Not str democrat", "Strong democrat")
+  )) %>%
+  count(partyid)
+```
+
+```{r}
+# Use fct_lump to lump together smaller levels
+# it will continue aggregating while the aggregate is still the smallest group
+gss_cat %>%
+  mutate(relig = fct_lump(relig)) %>%
+  count(relig)
+# this behaviour can be over-written with the n parameter
+gss_cat %>%
+  mutate(relig = fct_lump(relig, n = 10)) %>%
+  count(relig, sort = TRUE) %>%
+  print(n = Inf)
+```
+
+## Section exercises (page 235)
+
+### 1 - Time series of `partyid`
+
+```{r}
+gss_cat %>%
+  mutate(partyid = fct_collapse(partyid,
+                                other = c("No answer", "Don't know", "Other party"),
+                                rep = c("Strong republican", "Not str republican"),
+                                ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                                dem = c("Not str democrat", "Strong democrat"))) %>%
+  count(year, partyid) %>%
+  group_by(year) %>%
+  mutate(p = n / sum(n)) %>%
+  ggplot(aes(x = year, y = p, colour = fct_reorder2(partyid, year, p))) +
+  geom_point() +
+  geom_line() +
+  labs(x = "Year", y = "Proportion", colour = "Party ID.")
+
+# gss_cat %>%
+#   mutate(partyid = fct_collapse(partyid,
+#                                 other = c("No answer", "Don't know", "Other party"),
+#                                 rep = c("Strong republican", "Not str republican"),
+#                                 ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+#                                 dem = c("Not str democrat", "Strong democrat"))) %>%
+#   group_by(year, partyid) %>% 
+#   tally() %>% 
+#   ungroup() %>% 
+#   group_by(year) %>%
+#   mutate(p = n / sum(n)) %>%
+#   ggplot(aes(x = year, y = p, colour = fct_reorder2(partyid, year, p))) +
+#   geom_point() +
+#   geom_line() +
+#   labs(x = "Year", y = "Proportion", colour = "Party ID.")
+```
+
+### 2 - Collapse `rincome`
+
+```{r}
+levels(gss_cat$rincome)
+new_rincome <- gss_cat %>% 
+  dplyr::select(rincome) %>% 
+  mutate(rincome = fct_collapse(rincome,
+                                other = c("No answer", "Don't know", "Refused", "Not applicable"))) %>% 
+  pull()
+levels(new_rincome)
+```
 
