@@ -309,4 +309,3 @@ new_rincome <- gss_cat %>%
   pull()
 levels(new_rincome)
 ```
-
