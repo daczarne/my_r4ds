@@ -1,0 +1,75 @@
+---
+title: "str functions"
+author: "Daniel Czarnievicz"
+date: "5/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(magrittr)
+library(tidyverse)
+library(stringr)
+```
+
+# str_functions
+
+- `str_length()`: returns the lenght of a character string  
+- `str_c()`: concatenates  
+- `str_sub()`: subsetting strings by start and end position  
+- `str_to_lower()`, `str_to_upper()`, `str_to_title()`: change capitalization of a string  
+- `str_order()` and `str_sort()`: same as order and sort but with locale option
+- `str_view()` and `str_view_all()`: shows matches in a viewing device  
+- `str_detect()`: detect the presence or absence of a pattern in a string
+- `str_locate()`: returns a matrix with start and end position of patterns
+- `regex()`: greater control on regex definition
+- `fixed()`: matches exactly the specified sequence of bytes
+- `coll()`: same as fixed but respects human character comparison rules. compares strings using standard collation rules. Takes locale.
+
+# Character classes
+
+- `.` matches anything except for whitespace  
+- `\d` matches any digit  
+- `\s` matches any whitespace  
+- `[abc]` matches a, b or c  
+- `[^abc]` matches everything that is not a nor b nor c  
+
+# Repetition
+
+- `?`: 0 or 1 time  
+- `+`: 1 or more times  
+- `*`: 0 or more times  
+- `{n}`: exactly n times  
+- `{n,}`: n or more times  
+- `{,m}`: at most m times  
+- `{n,m}`: between n and m times  
+
+# Escaping  reserved (meta-)characters
+
+`\` is a reserved character. To create reg exps that contain a `\` you'll need to escape it.
+
+```{r error=TRUE}
+str_view(string = "This string contains the following digits: 1645454313149913",
+         pattern = "\d")
+```
+
+```{r}
+str_view(string = "This string contains the following digits: 1645454313149913",
+         pattern = "\\d")
+```
+
+```{r}
+str_view_all(string = "This string contains the following digits: 1645454313149913",
+             pattern = "\\d")
+```
+
+- `"\"`: This will escape the next character in the R string.
+- `"\\"`: This will resolve to `\` in the regular expression, which will escape the next character in the regular expression.
+- `"\\\"`: The first two backslashes will resolve to a literal backslash in the regular expression, the third will escape the next character. So in the regular expression, this will escape some escaped character.
+- `"\\\\"`: This will match a literal blackslash `\` is a character string  
+
+```{r}
+str_view(string = "This string contains one backslash \\",
+         pattern = "\\\\")
+```
+
