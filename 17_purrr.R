@@ -389,6 +389,69 @@ sim <- tribble(
 sim %<>%
    mutate(sim = invoke_map(f, params, n = 10))
 
+# Walk --------------------------------------------------------------------
+# Use walk when we are looking for the side effects of a function, not it's value
+x <- list(1, "a", 3)
+x %>%
+   walk(print)
+
+# Useful when saving files
+plots <- mtcars %>%
+   split(.$cyl) %>%
+   map(~ggplot(., aes(mpg, wt)) + geom_point())
+paths <- stringr::str_c(names(plots), ".pdf")
+pwalk(.l = list(paths, plots), .f = ggsave, path = tempdir())
+
+# Other patterns of for loops ---------------------------------------------
+
+#### Predicate functions ####
+
+# keep() and discard() keep elements of the input where the predicate is TRUE or FALSE respectively
+iris %>%
+   as_tibble() %>% 
+   keep(is.factor)
+
+iris %>%
+   as_tibble() %>% 
+   discard(is.factor)
+
+# some() and every() determine if the predicate is TRUE for any or for all of the elements
+x <- list(1:5, letters, list(10))
+x %>% some(is_character)
+x %>% every(is_character)
+x %>% every(is_vector)
+
+# detect() finds the first element where the predicate is TRUE. detect_index() returns its position
+set.seed(1234)
+x <- sample(10)
+x %>% detect(~ . > 5)
+x %>% detect_index(~ . > 5)
+
+# head_while() and tail_while() take elements from the start or end of a vector while a predicate is TRUE
+x %>% head_while(~ . > 5)
+x %>% tail_while(~ . < 10)
+
+#### Reduce and accumulate ####
+
+# reduce() reduce una lista a un "valor"
+dfs <- list(
+   age = tibble(name = "John", age = 30),
+   sex = tibble(name = c("John", "Mary"), sex = c("M", "F")),
+   trt = tibble(name = "Mary", treatment = "A")
+)
+dfs %<>% reduce(full_join)
+
+vs <- list(
+   c(1,    3,    5, 6,          10),
+   c(1, 2, 3,          7, 8,    10),
+   c(1, 2, 3, 4,          8, 9, 10)
+)
+vs %>% reduce(intersect)
+
+# accumulate() is similar but keeps interim results
+x <- sample(10)
+x %>% accumulate(`+`)
+
 ##########################
 #### END OF PROGRAMM #####
 ##########################
