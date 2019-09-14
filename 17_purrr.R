@@ -5,6 +5,7 @@
 # Introduction ------------------------------------------------------------
 
 library(tidyverse)
+library(magrittr)
 library(nycflights13)
 
 # Imperative programming: for loops, while loops
@@ -334,6 +335,59 @@ x %>% map_dbl(possibly(log, NA_real_))
 # quietly() performs a similar role to safely(), but instead of capturing errors, it captures printed output, messages, and warnings
 x <- list(1, -1)
 x %>% map(quietly(log)) %>% str()
+
+# Mapping over multiple arguments -----------------------------------------
+
+## Simulating random normal variables with different means
+mu <- list(5, 10, -3)
+mu %>%
+   map(rnorm, n = 5) %>%
+   str()
+
+## Simulating random normal variables with different means and standard devs
+mu <- list(5, 10, -3)
+sigma <- list(1, 5, 10)
+
+### Option 1: seq_along and map
+seq_along(mu) %>%
+   map(~rnorm(5, mu[[.]], sigma[[.]])) %>%
+   str()
+
+### Option 2: map2
+map2(mu, sigma, rnorm, n = 5) %>% str()
+
+# argument positions:
+#  - before function: arguments that vary (those to map over)
+#  - after function: arguments that stay the same
+
+## There's no map3, map4, map5, and so on. Use pmap for multiple arguments
+mu <- list(5, 10, -3)
+sigma <- list(1, 5, 10)
+n <- list(1, 3, 5)
+args1 <- list(n, mu, sigma)
+args1 %>% pmap(rnorm) %>% str()
+
+# If no names are provided, pmap() will use positional matching (i.e. it will assum arguments where passed in the correct order)
+args2 <- list(mean = mu, sd = sigma, n = n)
+args2 %>% pmap(rnorm) %>% str()
+
+# Invoking different functions --------------------------------------------
+f <- c("runif", "rnorm", "rpois")
+param <- list(
+   list(min = -1, max = 1),
+   list(sd = 5),
+   list(lambda = 10)
+)
+invoke_map(f, param, n = 5) %>% str()
+
+sim <- tribble(
+   ~f, ~params,
+   "runif", list(min = -1, max = 1),
+   "rnorm", list(sd = 5),
+   "rpois", list(lambda = 10)
+)
+sim %<>%
+   mutate(sim = invoke_map(f, params, n = 10))
 
 ##########################
 #### END OF PROGRAMM #####
