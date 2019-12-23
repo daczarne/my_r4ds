@@ -1,4 +1,5 @@
-# my_r4ds ![experimentad](https://img.shields.io/badge/lifecycle-experimental-orange.svg)
+# my_r4ds ![dormant](https://img.shields.io/badge/lifecycle-dormant-blue.svg)  
+
 Exercises solutions and some notes for Wickham and Grolemund's **R for data science**  
 1st edition - 2016  
 
