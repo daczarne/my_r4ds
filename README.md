@@ -1,6 +1,8 @@
 # my_r4ds  
 
 ![dormant](https://img.shields.io/badge/lifecycle-dormant-blue.svg)  
+![languages](https://img.shields.io/github/languages/count/daczarne/my_r4ds)   
+![top language](https://img.shields.io/github/languages/top/daczarne/my_r4ds)   
 
 Exercises solutions and some notes for Wickham and Grolemund's **R for data science**  
 1st edition - 2016  
