@@ -1,8 +1,13 @@
-# my_r4ds  
+# R for Data Science
 
-![dormant](https://img.shields.io/badge/lifecycle-dormant-blue.svg)  
-![languages](https://img.shields.io/github/languages/count/daczarne/my_r4ds)   
-![top language](https://img.shields.io/github/languages/top/daczarne/my_r4ds)   
+![dormant](https://img.shields.io/badge/lifecycle-dormant-blue.svg)
+
+![github repo size](https://img.shields.io/github/repo-size/daczarne/my_r4ds)
+![github code size](https://img.shields.io/github/languages/code-size/daczarne/my_r4ds)
+
+![github languages](https://img.shields.io/github/languages/count/daczarne/my_r4ds)
+![top language](https://img.shields.io/github/languages/top/daczarne/my_r4ds)
+
 
 Exercises solutions and some notes for Wickham and Grolemund's **R for data science**  
 1st edition - 2016  
