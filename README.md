@@ -1,6 +1,6 @@
 # R for Data Science
 
-![dormant](https://img.shields.io/badge/lifecycle-dormant-blue.svg)
+![retired](https://img.shields.io/badge/lifecycle-retired-orange.svg)
 
 ![github repo size](https://img.shields.io/github/repo-size/daczarne/my_r4ds)
 ![github code size](https://img.shields.io/github/languages/code-size/daczarne/my_r4ds)
